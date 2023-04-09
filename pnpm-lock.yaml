@@ -4,6 +4,9 @@ dependencies:
   '@discordjs/builders':
     specifier: ^1.6.1
     version: 1.6.1
+  discord-api-types:
+    specifier: ^0.37.37
+    version: 0.37.37
   discord.js:
     specifier: ^14.9.0
     version: 14.9.0
