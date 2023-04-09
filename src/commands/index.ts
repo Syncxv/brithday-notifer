@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import { Command } from "../types";
+
 export const getCommands = async (): Promise<Command[]> => {
 	return Promise.all(
 		fs
