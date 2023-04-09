@@ -1,6 +1,6 @@
-// import { Routes } from "discord-api-types/v9";
-import { Client, GatewayIntentBits } from "discord.js";
+import { Client, GatewayIntentBits, REST, Routes } from "discord.js";
 import dotenv from "dotenv";
+import { getCommands } from "./commands";
 dotenv.config();
 
 const { TOKEN } = process.env;
@@ -9,19 +9,33 @@ export const client = new Client({
 	intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 });
 
-// const rest = new REST({ version: "9" }).setToken(TOKEN!);
+const rest = new REST({ version: "9" }).setToken(TOKEN!);
 
 const main = async () => {
+	const commands = await getCommands();
 	client.on("ready", async () => {
 		console.log(`Logged in as ${client.user!.tag}!`);
-		// await inviteManager.initalize(client)
-		// rest.put(Routes.applicationCommands(client.user!.id), {
-		//     body: commands
-		// }).catch(err => console.error(err))
+		rest
+			.put(Routes.applicationCommands(client.user!.id), {
+				body: commands,
+			})
+			.catch((err) => console.error(err));
 	});
 	client.on("interactionCreate", async (interaction) => {
 		if (interaction.isCommand()) {
-			console.log(interaction);
+			const command = commands.find(
+				(cmd) => cmd.name === interaction.commandName
+			);
+			if (!command) return;
+			try {
+				await command.execute(interaction);
+			} catch (error) {
+				console.error(error);
+				await interaction.reply({
+					content: "There was an error while executing this command!",
+					ephemeral: true,
+				});
+			}
 		}
 	});
 
