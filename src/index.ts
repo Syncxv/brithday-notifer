@@ -38,7 +38,7 @@ const main = async () => {
 			}
 		}
 	});
-
+//easter egg
 	client.login(TOKEN!);
 };
 
