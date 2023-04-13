@@ -1,13 +1,21 @@
-import fs from "node:fs";
+import fs from "node:fs/promises";
 import { Command } from "../types";
 
 export const getCommands = async (): Promise<Command[]> => {
-	return Promise.all(
-		fs
-			.readdirSync(__dirname)
-			.filter((file) => file !== "index.js" && !file.includes(".map"))
-			.map(
-				async (filename) => (await import(`${__dirname}/${filename}`)).default
-			)
-	);
+	const files = await fs.readdir(__dirname);
+	const commands: Command[] = [];
+	
+	for (const file of files) {
+		if (file !== "index.js" && !file.includes(".map")) {
+			try {
+				const module = await import(`${__dirname}/${file}`);
+				const command = module.default;
+				commands.push(command);
+			} catch (error) {
+				console.error(`Failed to import ${file}: ${error}`);
+			}
+		}
+	}
+	
+	return commands;
 };
